@@ -46,7 +46,7 @@ export default {
         //BruteForce
         //time: O(n^m * m) //branch n at every level up to m levels n^m + copying over the combination array of up to m length for each node
         //space: O(m)   //stack frames up to m in depth, with array up to m in length at each
-        recursiveHowSum(target = this.target, numbers=this.availableNums){/
+        recursiveHowSum(target = this.target, numbers=this.availableNums){
             console.log('Target: '+target);
             if(target===0) return [];
             if(target<0) return null;
