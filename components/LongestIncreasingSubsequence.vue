@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3 class="subtitle">
-      Longest Increasing Substring
+      Longest Increasing Subsequence
     </h3>
     <p>
       This is a classic dynamic programming problem asking 
