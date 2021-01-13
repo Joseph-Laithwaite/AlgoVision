@@ -1,6 +1,7 @@
 <template>
   <div>
     <h3>Can Sum</h3>
+    <h4> Decision Problem ie. return boolean</h4>
     <p>
         Return whether the target sum={{target}} can be made with the given numbers={{availableNums}}.<br>
         Numbers can be used multiple times and can be predumes all target and sum numbers are positive.
@@ -41,7 +42,12 @@ export default {
             this.canSumOutput = this.optimisedRecursiveCanSum(this.target, this.availableNums);
             // this.canSumOutput = this.iterativeCanSum();
         },
-        recursiveCanSum(target = this.target, numbers=this.availableNums){// , numbers = this.availableNums){
+        //m = targetSum
+        //n = numbers.length
+        //BruteForce
+        //time: O(n^m)  //go down up to m levels (eg. every item 1) at every level branch up to n times
+        //space: O(m)   //Only have to store stack frames in use to it's max depth m
+        recursiveCanSum(target = this.target, numbers=this.availableNums){
             console.log('Target: '+target);
             if(target===0) return true;
             if(target<0) return false;
@@ -57,7 +63,11 @@ export default {
             return false;
             
         },
-        optimisedRecursiveCanSum(target = this.target, numbers=this.availableNums, memo = {}){
+
+        //optimised
+        //time: O(m*n)   //still have to branch n at each node but only will make up to m memo keys
+        //space: O(m)   //store up to m memo keys
+        optimisedRecursiveCanSum(target = this.target, numbers=this.availableNums, memo = {}){  
             // console.log('Target: '+target);
             if(memo[target]) return memo[target];
             if(target===0) return true;

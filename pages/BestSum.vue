@@ -1,6 +1,8 @@
 <template>
   <div>
     <h3>Best Sum</h3>
+    <h4>Optimisation Problem ie. return bet combination</h4>
+
     <p>
         Return the smallest combination of the given numbers={{availableNums}} which can sum to the target sum={{target}}.<br>
         Numbers can be used multiple times and can be presumed all target and sum numbers are positive.
