@@ -4,24 +4,64 @@
     <h4> Combinatoric Problem ie. return combination</h4>
 
     <p>
-        Return a combination of the given numbers={{availableNums}} which can sum to the target sum={{target}}.<br>
-        Numbers can be used multiple times and can be presumed all target and sum numbers are positive.
+        Return a combination of the given numbers={{availableNums}} which how sum to the target sum={{target}}.<br>
+        Numbers may be used multiple times and how be presumed all target and sum numbers are positive.
     </p>
+    <label for="target">Target Sum:</label>
+    <input v-model="target" type="number" id="target" v-on:keyup.enter="callHowSum" v-on:input="howSumOutput=''"/>
+    <br>
     <h4>Numbers Available</h4>
-    <table class="table">
+    <table class="table" @mouseenter="showRemoveItems=true" @mouseleave="showRemoveItems=false">
         <tbody>
+            <th scope="row">Available Numbers</th>
             <th v-for="(item, index) in availableNums" :key="index+','+item" scope="col" class="text-center">
                 {{item}}
             </th>
-            <!-- <th scope="col" style="width:10%;">
-                <input v-on:keyup.enter="apendList"  v-model="newItemForList" type="text" class="form-control" id="arrayItemInput" >
-            </th> -->
+            <th scope="col" style="width:10%;" v-if="showRemoveItems" >
+            <input v-on:keyup.enter="apendList"  v-model="newAvailableNumber" type="number" class="form-control" id="arrayItemInput" >
+          </th>
         </tbody>
+        <tfoot v-if="showRemoveItems" @mouseenter="showRemoveItems=true" @mouseleave="showRemoveItems=false">
+            <th>
+            <button @click="availableNums=[]" type="button" class="btn">
+                    Remove All
+            </button>
+            </th>
+            <th v-for="(item,index) in availableNums" :key="'i'+index" scope="col" class="text-center" >
+                <button @click="availableNums.splice(index,1)" type="button" class="btn">
+                X
+                </button>
+            </th>
+        </tfoot>
     </table>
-    <label for="target">Target Sum:</label>
-    <input v-model="target" type="number" id="target" v-on:keyup.enter="callHowSum" v-on:input="howSumOutput=''"/>
+    <h3>Solution Table</h3>
+    <table class="table table-bordered border-primary">
+      <thead>
+        <tr>
+          <th>index</th>
+          <th v-for="(item,index) in table" :key="'i'+index" scope="col" class="text-center" 
+          :class="{ 'table-primary': rightPointer===index, 'table-secondary':leftPointer===index }">
+              {{index}}
+          </th>
+          <th scope="col" style="width:10%;" v-if="showRemoveItems" @mouseenter="showRemoveItems=true" @mouseleave="showRemoveItems=false">
+            {{table.length}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>table[index]</th>
+          <th v-for="(item, index) in table" :key="index+','+item" scope="col" class="text-center"
+          :class="{ 'table-primary': rightPointer===index, 'table-secondary':leftPointer===index }"
+          >
+            {{item||'null'}}
+          </th>
+        </tr>
+      </tbody>
+    </table>
+    <br>
 
-    <p>{{howSumOutput}}</p>
+    <p>{{(howSumOutput=="[object Promise]"||howSumOutput.length===0)?'':howSumOutput}}</p>
   </div>
 </template>
 
@@ -32,14 +72,23 @@ export default {
             availableNums:[5,3,4,7],
             target:7,
             howSumOutput:[],
+            table:[],
+            leftPointer:0,
+            rightPointer:0,
+            newAvailableNumber:'',
+            showRemoveItems:false,
         }
     },
     methods:{
+        apendList(){
+            this.availableNums.push(parseInt(this.newAvailableNumber));
+            this.newAvailableNumber = '';
+        },
         callHowSum(){
             this.howSumOutput= '';
             // this.howSumOutput = this.recursiveHowSum(this.target, this.availableNums) || 'Sum not possible';
-            this.howSumOutput = this.optimisedRecursiveHowSum(this.target, this.availableNums) || 'Sum not possible';
-            // this.howSumOutput = this.iterativeHowSum();
+            // this.howSumOutput = this.optimisedRecursiveHowSum(this.target, this.availableNums) || 'Sum not possible';
+            this.howSumOutput = this.tabularHowSum();
         },
         //m= target
         //n = numbers.length
@@ -53,14 +102,14 @@ export default {
 
             for(let number of numbers){
                 let diff = target - number;
-                console.log('For target:'+target+', num: '+number+', call can sum for new target: '+ diff);
+                console.log('For target:'+target+', num: '+number+', call how sum for new target: '+ diff);
                 let childHowSum = this.recursiveHowSum(diff, numbers);
                 if(childHowSum !== null){
                     console.log('Child sum type: ' + typeof childHowSum);
                     return [ ...childHowSum, number];
                 }
             }
-            console.log('Target: '+target+' cannot be made');
+            console.log('Target: '+target+' hownot be made');
             return null;
         },
         //Optimised
@@ -74,18 +123,43 @@ export default {
 
             for(let number of numbers){
                 let diff = target - number;
-                // console.log('For target:'+target+', num: '+number+', call can sum for new target: '+ diff);
+                // console.log('For target:'+target+', num: '+number+', call how sum for new target: '+ diff);
                 let childHowSum = this.optimisedRecursiveHowSum(diff, numbers, memo);
                 if(childHowSum !== null){
                     memo[target] = [ ...childHowSum, number];
                     return memo[target];
                 }
             }
-            console.log('Target: '+target+' cannot be made');
+            console.log('Target: '+target+' hownot be made');
             memo[target] = null;
             return null;
         },
-        iterativeHowSum(){
+        async delay(ms = this.delayMs) {
+            return await new Promise(resolve => setTimeout(resolve, ms));
+        },
+        //Tabular
+        //time: O(m^2n)   //worst case copy over array of length m plus loop through m n times
+        //space: O(m^2)   //Sub array max m for every m subarray
+        async tabularHowSum(){
+            this.table = new Array(parseInt(this.target)+1).fill(null);
+            this.table[0]=[];
+            for(this.leftPointer=0; this.leftPointer<=this.target; this.leftPointer++){
+                if(this.table[this.leftPointer] !== null){
+                    for(let number of this.availableNums){
+                        this.rightPointer = this.leftPointer + number;
+                        if(this.rightPointer<=this.target){
+                            this.table[this.rightPointer]=[...this.table[this.leftPointer],number];
+                            await this.delay(1000);
+                        }else{
+                            await this.delay(500);
+                        }
+                    }
+                }else{
+                    await this.delay(500);
+                }
+            }
+            // this.howSumOutput=this.table[this.target];
+            return this.table[this.target];
         },
     }
 
