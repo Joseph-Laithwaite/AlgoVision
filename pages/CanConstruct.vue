@@ -6,40 +6,42 @@
         Return whether the target string="{{target}}" can be made with the given the array of strings wordBank={{wordBank}}.<br>
         You can re-use elements of the WordBank as many times as required.
     </p>
-    <h4>Numbers Available</h4>
-    <table class="table">
-        <tbody>
-            <th v-for="(item, index) in wordBank" :key="index+','+item" scope="col" class="text-center">
-                {{item}}
-            </th>
-        </tbody>
-    </table>
+    <input-options-table title="Numbers Available" :table="wordBank"></input-options-table>
     <label for="target">Target Construct:</label>
-    <input v-model="target" type="word" id="target" v-on:keyup.enter="callCanConstruct" v-on:input="canConstructOutput=''"/>
+    <input v-model="target" type="word" id="target" v-on:keyup.enter="callCanConstruct" v-on:input="populateTable()"/>
+    <tabulation-table :table="table" :headingTable="target" :leftPointer="leftPointer" :rightPointer="rightPointer" ></tabulation-table>
 
-    <p>{{canConstructOutput}}</p>
+    <p>{{(canConstructOutput===true||canConstructOutput===false)?canConstructOutput:'No output, press enter to run'}}</p>
     <!-- <p v-for="(value, key) in canConstructSeq" :key="key">{{value}}</p> -->
   </div>
 </template>
 
 <script> 
+import TabulationTable from '~/components/TabulationTable.vue';
+import InputOptionsTable from '~/components/InputOptionsTable.vue';
+import delayMixin from '~/mixins/Delay.vue';
 export default {
+    mixins: [delayMixin],
+  components: { TabulationTable, InputOptionsTable },
     data(){
         return{
-            // wordBank:["ab","abc",'cd',"def","abcd"],
-            // target:"abcdef",
-            wordBank:["e","ee",'eee',"eeee","eeeee","eeeeee","eeeeee"],
-            target:"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wordBank:["ab","abc",'cd',"def","abcd"],
+            target:"abcdef",
+            // wordBank:["e","ee",'eee',"eeee","eeeee","eeeeee","eeeeee"],
+            // target:"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             canConstructOutput:Boolean,
             canConstructSeq:{},
+            table:[],
+            leftPointer:0,
+            rightPointer:0,
         }
     },
     methods:{
         callCanConstruct(){
             this.canConstructOutput= '';
             // this.canConstructOutput = this.recursiveCanConstruct(this.target, this.wordBank);
-            this.canConstructOutput = this.optimisedRecursiveCanConstruct(this.target, this.wordBank);
-            // this.canConstructOutput = this.iterativeCanConstruct();
+            // this.canConstructOutput = this.optimisedRecursiveCanConstruct(this.target, this.wordBank);
+            this.canConstructOutput = this.tabularCanConstruct();
         },
         //m = target.length     == Height of worst case tree
         //n = wordBank.length   == Branching factor
@@ -92,9 +94,31 @@ export default {
             memo[target]=false;
             return false;
         },
-        iterativeCanConstruct(){
-
+        populateTable(){
+            this.table = new Array(this.target.length+1).fill(false);
+            this.table[0] = true;
+            this.canConstructOutput=''
         },
+        //Time: O(m^n)
+        //space: O(m)
+        tabularCanConstruct(){
+            for (this.leftPointer = 0; this.leftPointer<=this.target.length; this.leftPointer++){
+                if(this.table[this.leftPointer] === true){
+                    for( let word of this.wordBank){
+                        // if(this.target.slice(this.leftPointer, this.leftPointer + word.length) === word)
+                        this.rightPointer=this.leftPointer+word.length;
+                        if(this.target.indexOf(word,this.leftPointer) === this.leftPointer){
+                            this.table[this.rightPointer]
+                        }
+                        delayMixin.delay();
+                    }
+                }
+            }
+            return this.table[this.target.length];
+        },
+    },
+    created(){
+        this.populateTable();
     }
 
 
