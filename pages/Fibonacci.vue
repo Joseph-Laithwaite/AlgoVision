@@ -15,6 +15,7 @@
 
 <script>
 export default {
+    name:'Fibonacci',
     data(){
         return{
             n:0,

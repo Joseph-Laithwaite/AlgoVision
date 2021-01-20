@@ -5,6 +5,7 @@
       <ultimate-table 
             :table="linkedList.nodes"
             :rowIsObject="true"
+            :twoDArray="true"
             :editable="editable"
             :showIndex="false"
             :addEmptyCorner="false"
