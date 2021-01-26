@@ -17,7 +17,7 @@
 
   ></ultimate-table>
   <br>
-  <div>
+  <!-- <div>
     <h3>Visited matrix</h3>
     <ultimate-table
         :table="visited"
@@ -32,7 +32,7 @@
         :keyPointer="col"
         
     ></ultimate-table>
-  </div>
+  </div> -->
 </div>
 </template>
 
@@ -85,7 +85,7 @@ export default {
             }
             this.editable=true;
         },
-        traverseNode(row = this.row, col = this.col, matrix = this.matrix, visited = this.visited,sizes = this.sizes){
+        async traverseNode(row = this.row, col = this.col, matrix = this.matrix, visited = this.visited,sizes = this.sizes){
             this.currentRiverSize=0;
             let nodesToExplore = [[row,col]];
             while(nodesToExplore.length>0){
@@ -93,7 +93,7 @@ export default {
                 this.row = currentNode[0];
                 this.col = currentNode[1];
                 console.log('current node exploring: ',this.row,',',this.col);
-                this.delay();
+                await this.delay();
                 if (this.visited[this.row][this.col]===false){
                     this.visited[this.row][this.col] = true;
                     if(this.matrix[this.row][this.col]===1){

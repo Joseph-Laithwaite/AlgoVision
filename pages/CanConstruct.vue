@@ -19,9 +19,9 @@
 <script> 
 import TabulationTable from '~/components/TabulationTable.vue';
 import InputOptionsTable from '~/components/InputOptionsTable.vue';
-import delayMixin from '~/mixins/Delay.vue';
+// import delayMixin from '~/mixins/Delay.vue';
 export default {
-    mixins: [delayMixin],
+    // mixins: [delayMixin],
   components: { TabulationTable, InputOptionsTable },
     data(){
         return{

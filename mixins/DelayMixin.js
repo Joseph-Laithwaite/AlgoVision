@@ -1,5 +1,5 @@
-const delayMixin = {
-  name:'delayMixin',
+export default{
+  name:'DelayMixin',
   methods: {
     async delay(ms = this.delayMs) {
       return await new Promise(resolve => setTimeout(resolve, ms));
@@ -7,7 +7,7 @@ const delayMixin = {
   },
   data() {
     return{
-      delayMs:500,
+      delayMs:50,
     }
   }
 }
