@@ -1,22 +1,19 @@
 <template>
   <div>
-    <button @click="visible = !visible">
-      <span v-if="visible"> Hide Config </span>
-      <span v-else> Show Config </span>
-    </button>
     <div id="container">
-      <config
-        id="config"
-        v-if="visible"
-        :items="items"
-        @remove-item="handleRemoveItem"
-        @add-item="handleAddItem"
-      >
-      </config>
       <svg xmlns="http://www.w3.org/2000/svg" :view-box.camel="viewbox">
+      <text :x="halfSize" :y="topHeight + 75">
+        {{ graph.node }}
+      </text>
+      <!-- <circle fill="#FFC107" r="10" :cx="halfSize" :cy="topHeight + 100"></circle>  -->
+      <!-- <recursive-graph
+        :layerHeight="layerHeight"
+        :graph="graph"
+        :layerNumber="1"
+      ></recursive-graph> -->
         <g>
-          <g v-for="(item, index) in items" :key="item + index">
-            <!-- Cubic Bezier Component  -->
+          <g v-for="(child, index) in graph.children" :key="item + index">
+            Cubic Bezier Component 
             <cubic-bezier
               :index="index"
               :half-size="halfSize"
@@ -24,48 +21,68 @@
               :bottom-height="bottomHeight"
               :radius="radius"
               :distance="distance"
-              :item="item"
+              :item="child.node"
             ></cubic-bezier>
           </g>
         </g>
-        <!-- Clipping Mask Component  -->
-        <clip-mask
+        <text :x="halfSize" :y="topHeight + 75">
+            {{ graph.node }}
+        </text>
+        <circle fill="#FFC107" r="10" :cx="halfSize" :cy="topHeight + 100"></circle> 
+
+        <!-- <circle fill="#FFC107" r="10" :cx="halfSize" :cy="topHeight+30"></circle> -->
+        <!-- <clip-mask
           :title="title"
           :half-size="halfSize"
           :top-height="topHeight"
           :radius="radius"
-        ></clip-mask>
+        ></clip-mask>-->
       </svg>
     </div>
   </div>
 </template>
 
 <script>
-import ClipMask from "../components/ClipMask.vue"
-import Config from "../components/Config.vue"
-import CubicBezier from "../components/CubicBezier.vue"
+import CubicBezier from "./CubicBezier.vue"
+import RecursiveGraph from './RecursiveGraph.vue';
 
 export default {
-  name: "graph",
+  name: "SVGGraph",
   components: {
-    ClipMask,
-    Config,
-    CubicBezier
+    CubicBezier,
+    RecursiveGraph
+  },
+  props:{
+    layers:{default:2},
+    graph: {
+      default:
+      {
+        node:"Parent",
+        children:[
+          {
+            node:"Left Child",
+            children:[
+              {
+                node:"Left Child",
+                children:[]
+              },
+              {
+                node:"Right Child",
+                children:[]
+              }
+            ]
+          },
+          {
+            node:"Right Child",
+            children:[]
+          }
+        ]
+      }
+      },
   },
   data() {
     return {
-      title: "AAAAaAAAAaAAAAa",
       size: 1000,
-      items: [
-        "Starlord",
-        "Gamora",
-        "Groot",
-        "Rocket",
-        "Drax",
-        "Yondu",
-        "Nebula",
-        "Korath"
-      ],
       visible: false
     }
   },
@@ -87,23 +104,20 @@ export default {
     },
     distance() {
       // distance between two array items on the horizon
-      return Math.round(this.width / this.items.length)
+      return Math.round(this.width / this.graph.children.length);
     },
     radius() {
       return this.topHeight * 0.5
     },
     viewbox() {
       return "0 0 " + this.size + " " + this.size
-    }
-  },
-  methods: {
-    handleAddItem(item) {
-      this.items.push(item)
     },
-    handleRemoveItem(i) {
-      this.items.splice(i, 1)
-    }
-  }
+
+    layerHeight(){
+      return (this.size * 0.8)/this.layers;
+    },
+
+  },
 };
 </script>
 
@@ -138,7 +152,7 @@ text {
 }
 svg {
   width: 100%;
-  height: 100%;
+  height: 60%;
 }
 
 .title {
