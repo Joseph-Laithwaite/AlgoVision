@@ -1,19 +1,19 @@
-// class Position {
-//     constructor(value=0, correct = false){
-//         this.value = value;
-//         this.correct = correct;
-//     }
-// }
 // import DelayMixin from '../mixins/DelayMixin.js';
 
 export default {
-    data(){ return{ currentRow:0, currentCol:0 , initialGrid:[]} },
+    data(){ return{ 
+        currentRow:-1, 
+        currentCol:-1 , 
+        initialGrid:[], 
+        guessStack:[], 
+        backtrack: false
+    }},
     // mixins:[DelayMixin],
     methods:{
         async solveSuduko(grid){
             let row, col;
             for(let i = 0; i <82 ; i++){
-                await this.delay();
+                // await this.delay();
                 row = this.currentRow = Math.floor(i/9);
                 col = this.currentCol = i%9;
                 let currPos = grid[this.currentRow][this.currentCol];
@@ -34,12 +34,50 @@ export default {
                             }
                         }
                     }
-                    await this.delay();
+                    // await this.delay();
                     break;  //Cannot use any numbers 1-9 so must be a mistake behind, so backtrack
                 }
             }
             console.log("Backtrack");
             this.grid[row][col] = 0;
+            this.grid[row][col] = 0;
+        },
+
+        async iterativeSuduko(grid, row, col){
+            // console.log('grid[',row,'][',col,'] = ', grid[row][col]);
+            if(grid[row][col] === 0){
+                for(let tryVal = 1; tryVal<=9; tryVal++){
+                    if(this.insertNumber(tryVal)){
+                        this.guessStack.push({row:row, col:col, val:tryVal});
+                        return
+                    }
+                }
+                //Cannot use any numbers 1-9 so must be a mistake behind, so backtrack
+                // console.log("Backtrack");
+                this.backtrack = true;
+            }
+            return
+        },
+        async backtrackAlgo(grid, row, col){
+            //If back track to original item ignore and continue backtrackinginitialGridinitialGrid
+            if(grid[row][col] === this.initialGrid[row][col]) 
+                return;    
+            let lastGuess = this.guessStack.pop();
+            // console.log('lastGuess',lastGuess);
+            if(lastGuess.row !== row, lastGuess.col !== col) {
+                //Current pos is not a guess so backtrack again
+                grid[row][col] = 0; 
+                return;
+            }  
+            for(let tryVal = lastGuess.val+1; tryVal<=9; tryVal++){
+                if(this.insertNumber(tryVal)){
+                    this.guessStack.push({row:row, col:col, val:tryVal});
+                    this.backtrack=false;
+                    return
+                }
+            }
+            grid[row][col] = 0;
+            return
         },
         checkGridComplete(grid = this.grid){
             for (let row = 0; row<=9; row++){
@@ -74,13 +112,13 @@ export default {
             let squareStartCol = Math.floor(col/3)*3;
             let squareEndRow = squareStartRow + 2;
             let squareEndCol = squareStartCol + 2;
-            console.log('current square is from (',squareStartRow,',',squareStartCol,') to (',squareEndRow,',',squareEndCol,')');
+            // console.log('current square is from (',squareStartRow,',',squareStartCol,') to (',squareEndRow,',',squareEndCol,')');
 
             for(let i = squareStartCol; i<= squareEndCol; i++){
                 for(let j = squareStartRow; j<= squareEndRow; j++){
                     // console.log('current pos in square is at (',j,',',i,') = ',this.grid[j][i]);
                     if(this.grid[j][i] === tryVal){
-                        console.log('square has', tryVal);
+                        // console.log('square has', tryVal);
                         return true;
                     }
                 }
@@ -89,8 +127,8 @@ export default {
             
         },
         resetAlgorithm(){
-            this.currentRow=0;
-            this.currentCol=0;
+            this.currentRow=-1;
+            this.currentCol=-1;
             this.algoComplete=false;
             this.inProgress=false;
             this.paused=true;
@@ -99,8 +137,8 @@ export default {
 
         },
         resetGrid(){
-            this.currentRow=0;
-            this.currentCol=0;
+            this.currentRow=-1;
+            this.currentCol=-1;
             this.setGrid();
             this.algoComplete=false;
             this.inProgress=false;
@@ -140,15 +178,14 @@ export default {
         },
         insertNumber(val, row=this.currentRow, col = this.currentCol){
             if (this.grid[row][col] === val) {
+                // Removes item if trying to insert the same number as currently in a position
                 this.grid[row][col] = 0;
                 return true;
             } else {
                 if(!this.rowHasVal(val, row)){
-                    // console.log('row doesnt have', val);
                     if(!this.colHasVal(val, col)){
-                        // console.log('col doesnt have', val);
                         if(!this.squareHasVal(val, row, col)){
-                            console.log('Inserted', val, 'at (',col,',',row,')');
+                            // console.log('Inserted', val, 'at (',col,',',row,')');
                             this.grid[row][col] = val;
                             return true;
                         }
@@ -159,11 +196,11 @@ export default {
         }
     },
     computed:{
-        currentSquare(){
-            let row = [];
-            row.push(this.grid.slice)
-            return row;
-        },
+        // currentSquare(){
+        //     let row = [];
+        //     row.push(this.grid.slice)
+        //     return row;
+        // },
         squareStartRow(){
             return Math.floor(this.currentRow/3)*3;
         },

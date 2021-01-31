@@ -20,7 +20,7 @@
                 <b-form-select v-model="algorithm" class="mx-1" placeholder="Select Algorithm" @change="resetAlgorithm">
                     <b-form-select-option value="Dijkstra">Dijkstra</b-form-select-option>
                     <b-form-select-option value="A Star">A Star</b-form-select-option>
-                    <b-form-select-option value="b" disabled>Option B (disabled)</b-form-select-option>
+                    <b-form-select-option value="DFS">Depth First Search</b-form-select-option>
                 </b-form-select>
             </b-input-group>
           </li>
@@ -82,11 +82,12 @@ class Position {
 import DelayMixin from '../mixins/DelayMixin.js';
 import DijkstraAlgorithm from '../mixins/DijkstraAlgorithm.js';
 import AStarAlgorithm from '../mixins/AStarAlgorithm.js';
+import DepthFirstSearch from '../mixins/DepthFirstSearch.js';
 
 
 export default {
     name:'PathFindingVisualiser',
-    mixins:[DelayMixin,DijkstraAlgorithm,AStarAlgorithm],
+    mixins:[DelayMixin, DijkstraAlgorithm, AStarAlgorithm, DepthFirstSearch],
     data(){
         return{
             gridWidth:20,
@@ -116,19 +117,7 @@ export default {
             let pass;
             switch(this.algorithm){
                 case 'Dijkstra': 
-                    if(!this.inProgress){
-                        this.univisitedPositions = this.getAllPositions();
-                        this.inProgress=true;
-                    }
-                    pass = await this.dijkstra();
-                    if(pass===true){
-                        await this.drawShortestRoute();
-                        this.inProgress = false;
-                        this.algoComplete = true;
-                    }else if(pass===false){
-                        this.inProgress = false;
-                        this.algoComplete = true;
-                    }
+                    await this.stepDijkstra()
                     break;
                 case 'A Star': 
                     if(!this.inProgress){
@@ -147,6 +136,24 @@ export default {
                         this.paused = true;
                     }
                 break;
+                case 'DFS': 
+                    if(!this.inProgress){
+                        this.univisitedPositions = this.getAllPositions();
+                        this.inProgress=true;
+                    }
+                    pass = await this.dfs();
+                    if(pass === true){
+                        await this.drawShortestRoute();
+                        this.inProgress = false;
+                        this.algoComplete = true;
+                        this.paused = true;
+                    }else if(pass === false){
+                        this.inProgress = false;
+                        this.algoComplete = true;
+                        this.paused = true;
+                    }
+                break;
+
             }
         },
 
@@ -171,13 +178,18 @@ export default {
             this.algoComplete=false;
             this.inProgress=false;
             this.paused=true;
-            let start = this.startPos;
-            let end = this.endPos;
-            end.shortestRoute= false;
+            let start,end;
+            if(this.startPos)
+                start = this.startPos;
+            if(this.endPos){
+                end = this.endPos;
+                end.shortestRoute= false;
+            }
             this.setGrid();
-            this.grid[start.y][start.x] = start;
-            this.grid[end.y][end.x] = end;
-
+            if(start)
+                this.grid[start.y][start.x] = start;
+            if(end)
+                this.grid[end.y][end.x] = end;
         },
         resetGrid(){
             this.gridReady=false;   //Start and end not set

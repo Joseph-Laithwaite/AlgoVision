@@ -18,9 +18,8 @@
           <li>
             <b-input-group size="sm">
                 <b-form-select v-model="algorithm" class="mx-1" placeholder="Select Algorithm" @change="resetAlgorithm">
-                    <b-form-select-option value="Backtrack">Backtrack</b-form-select-option>
-                    <b-form-select-option value="A Star">A Star</b-form-select-option>
-                    <b-form-select-option value="b" disabled>Option B (disabled)</b-form-select-option>
+                    <b-form-select-option value="solve">Solve w/ Backtrack</b-form-select-option>
+                    <b-form-select-option value="generate">Generate Grid</b-form-select-option>
                 </b-form-select>
             </b-input-group>
           </li>
@@ -90,7 +89,7 @@ export default {
             paused:true,
             algoComplete:false,
             gridReady:false,
-            algorithm:'Backtrack',
+            algorithm:'solve',
         }
     },
     methods:{
@@ -104,23 +103,50 @@ export default {
         async stepAlgo(){
             let pass;
             switch(this.algorithm){
-                case 'Backtrack': 
-                    // if(!this.inProgress){
-                    //     //Algo first started
-                    //     this.inProgress=true;
-                    // }
-                    //run next step of algo
+                case 'generate': 
                     pass = await this.solveSuduko(this.grid);
+                break;
+                case 'solve': 
+                    if(!this.inProgress){
+                        //Algo first started
+                        this.inProgress=true;
+                        this.currentRow=0;
+                    }
+                    if(this.backtrack === true){
+                        this.currentCol--;
+                        if(this.currentCol<0) {
+                            this.currentRow--;
+                            if(this.currentRow<0){
+                                this.inProgress = false;
+                                this.algoComplete = true;
+                                return
+                            }
+                            this.currentCol = 8;
+                        }
+                        this.backtrackAlgo(this.grid, this.currentRow, this.currentCol);
+                    }else{
+                        this.currentCol++;
+                        if(this.currentCol===9) {
+                            this.currentRow++;
+                            if(this.currentRow===9){
+                                this.inProgress = false;
+                                this.algoComplete = true;
+                                return
+                            }
+                            this.currentCol = 0;
+                        }
+                        pass = await this.iterativeSuduko(this.grid, this.currentRow, this.currentCol);
+                    }
 
-                    // if(pass===true){
-                    //     //algorithm complete
-                    //     this.inProgress = false;
-                    //     this.algoComplete = true;
-                    // }else if(pass===false){
-                    //     //Algo failed
-                    //     this.inProgress = false;
-                    //     this.algoComplete = true;
-                    // }
+                    if(pass===true){
+                        //algorithm complete
+                        this.inProgress = false;
+                        this.algoComplete = true;
+                    }else if(pass===false){
+                        //Algo failed
+                        this.inProgress = false;
+                        this.algoComplete = true;
+                    }
                 break;
             }
         },

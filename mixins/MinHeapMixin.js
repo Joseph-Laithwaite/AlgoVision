@@ -1,5 +1,3 @@
-import { BIconEmojiNeutralFill } from "bootstrap-vue";
-
 export default {
     name:'Heap',
     data(){
@@ -30,7 +28,7 @@ export default {
         }
     }
 }
-// In a binary head stored in array use 1 base index
+// In a binary treem head stored in array use 1 base index
 // if index of parent = i
 // left child  = 2*i
 // right child = 2*i + 1
@@ -159,10 +157,10 @@ class MinHeap {
     }
 
 
-    heapAsTreeObj(heap =this.heap){
-        if(heap==null || heap.length<0) return 
-        if(heap[0] == null) heap.shift;
-    }
+    // heapAsTreeObj(heap =this.heap){
+    //     if(heap==null || heap.length<0) return 
+    //     if(heap[0] == null) heap.shift;
+    // }
 
     peakMin () {
         /* Accessing the min element at index 1 in the heap array */

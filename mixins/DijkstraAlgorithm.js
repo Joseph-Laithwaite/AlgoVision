@@ -1,5 +1,33 @@
+import MinHeapMixin from "../mixins/MinHeapMixin.js";
 export default {
+    mixins:[MinHeapMixin],
     methods:{
+        async stepDijkstra(){
+            if(!this.inProgress){
+                this.univisitedPositions = this.getAllPositions();
+                this.inProgress=true;
+            }
+            let pass = await this.dijkstra();
+            if(pass===true){
+                await this.drawShortestRoute();
+                this.inProgress = false;
+                this.algoComplete = true;
+            }else if(pass===false){
+                this.inProgress = false;
+                this.algoComplete = true;
+            }
+        },
+        // getAllPositionsHeap(){
+        //     let positions = [];
+        //     positions.push(this.startPos);
+        //     for (let row of this.grid){
+        //         for (let pos of row){
+        //             if(!pos.isStart)
+        //                 positions.push(pos);
+        //         }
+        //     }
+        //     return positions;
+        // },
         async dijkstra(){
             if(!this.startPos || !this.endPos || this.startPos === this.endPos){
                 return false;
