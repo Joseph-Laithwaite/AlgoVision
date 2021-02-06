@@ -6,43 +6,125 @@ export default {
         currentCol:-1 , 
         initialGrid:[], 
         guessStack:[], 
-        backtrack: false
+        backtrack: false,
+        counter:0,
     }},
     // mixins:[DelayMixin],
     methods:{
-        async solveSuduko(grid){
+        //A backtracking/recursive function to check all possible combinations of numbers until a solution is found
+        fillGrid(grid = this.grid){
+            //   global counter
+            //Find next empty cell
             let row, col;
-            for(let i = 0; i <82 ; i++){
-                // await this.delay();
-                row = this.currentRow = Math.floor(i/9);
-                col = this.currentCol = i%9;
-                let currPos = grid[this.currentRow][this.currentCol];
-                console.log('grid[',this.currentRow,'][',this.currentCol,'] = ', currPos);
-                if(currPos === 0){
-                    console.log('Current position empty');
-                    for(let tryVal = 1; tryVal<=9; tryVal++){
-                        if(this.insertNumber(tryVal)){
-                            if(this.checkGridComplete()){
-                                console.log("Grid Complete and Checked");
-                                return true;
-                            }else {
-                                console.log('grid not complete');
-                                if(await this.solveSuduko(grid) == true){
-                                    console.log('recursed function return true');
-                                    return true;
+            for(let i =0; i<81; i++){
+                row=Math.floor(i/9);
+                col=i%9;
+                // console.log('grid[',row,'][',col,'] = ', grid[row][col]);
+                if (grid[row][col] === 0){
+                    let numberList = [1,2,3,4,5,6,7,8,9];
+                    numberList = numberList.sort(() => Math.random() - 0.5);
+                    // console.log({numberList});
+                    for(let value of numberList){
+                        // console.log({value});
+                        if(this.insertNumber(value,row,col)){
+                            if(this.checkGridComplete(grid)){
+                                return true
+                            }else{
+                                if (this.fillGrid(grid)){
+                                    return true
                                 }
                             }
                         }
                     }
-                    // await this.delay();
-                    break;  //Cannot use any numbers 1-9 so must be a mistake behind, so backtrack
+                    break;
                 }
             }
-            console.log("Backtrack");
-            this.grid[row][col] = 0;
-            this.grid[row][col] = 0;
+            grid[row][col]=0             
         },
-
+        //A backtracking/recursive function to check all possible combinations of numbers until a solution is found
+        solveGrid(grid = this.grid){
+            //Find next empty cell
+            let row, col;
+            for(let i =0; i<81; i++){
+                row=Math.floor(i/9);
+                col=i%9;
+                if (grid[row][col] === 0){
+                    console.log('grid[',row,'][',col,'] = ', grid[row][col]);
+                    let numberList = [1,2,3,4,5,6,7,8,9];
+                    // console.log({numberList});
+                    for(let value of numberList){
+                        console.log({value});
+                        if(this.insertNumber(value, row, col, grid)){
+                            if(this.checkGridComplete(grid)){
+                                this.counter++;
+                                return true;
+                            }else{
+                                if(this.solveGrid(grid))
+                                    return true;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+            grid[row][col]=0
+        },
+        //Start Removing Numbers one by one
+        //A higher number of attempts will end up removing more numbers from the grid
+        //Potentially resulting in more difficiult grids to solve!
+        async removeNumber(grid = this.grid){
+            console.log('Removing number');
+            //Select a random cell that is not already empty
+            let row = Math.floor(Math.random()*9);
+            let col = Math.floor(Math.random()*9)
+            while (grid[row][col] == 0){
+                row = Math.floor(Math.random()*9)
+                col = Math.floor(Math.random()*9)
+            }
+            console.log('grid[',row,'][',col,'] = ', grid[row][col]);
+            //Remember its cell value in case we need to put it back  
+            let backup = grid[row][col];
+            console.log({backup});
+            console.log('grid[',row,']',grid[row]);
+            // let curRow = this.grid[row];
+            grid[row][col] = 0;
+            await grid.splice(row,1,grid[row]);
+            console.log('grid[',row,'][',col,'] = ', grid[row][col])
+            let copyGrid = [];
+            //Take a full copy of the grid
+            for(let r = 0; r<9; r++){
+                let rowCopy = [];
+                for(let c = 0; c<9; c++){
+                    // console.log('r',r,'c',c);
+                    if(row !== r || col !== c){
+                        // rowCopy.push(grid[r][c]);
+                        console.log('Set Pos as in grid',r,c)
+                        console.log(grid[r][c]);
+                    }else if(row == r && col == c){
+                        console.log('Row & col must be set to 0',r,c)
+                        console.log(grid[r][c]);
+                        // rowCopy.push(0);
+                    }
+                }
+                copyGrid.push(rowCopy);
+            }
+            
+            console.log('Grid', grid);
+            console.log('copyGrid', copyGrid);
+            //Count the number of solutions that this grid has (using a backtracking approach implemented in the solveGrid() function)
+            this.counter = 0;
+            this.solveGrid(copyGrid);
+            console.log('counter', this.counter);
+            //If the number of solution is different from 1 then we need to cancel the change by putting the value we took away back in the grid
+            if (this.counter !== 1){
+                grid[row][col] = backup;
+                //We could stop here, but we can also have another attempt with a different cell just to try to remove more numbers
+                this.numberOfRemainingBacktracks -= 1;
+            }else{
+                grid[row][col] = 0;
+                // this.grid = copyGrid;
+            }
+        },
         async iterativeSuduko(grid, row, col){
             // console.log('grid[',row,'][',col,'] = ', grid[row][col]);
             if(grid[row][col] === 0){
@@ -80,8 +162,8 @@ export default {
             return
         },
         checkGridComplete(grid = this.grid){
-            for (let row = 0; row<=9; row++){
-                for(let col = 0; col<=9; col++){
+            for (let row = 0; row<9; row++){
+                for(let col = 0; col<9; col++){
                     if (grid[col][row] == 0){
                         return false;
                     }
@@ -176,31 +258,48 @@ export default {
             this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 7, 4])
             this.initialGrid.push([0, 0, 5, 2, 0, 6, 3, 0, 0])
         },
-        insertNumber(val, row=this.currentRow, col = this.currentCol){
-            if (this.grid[row][col] === val) {
+        insertNumber(val, row=this.currentRow, col = this.currentCol, grid = this.grid){
+            if (grid[row][col] === val) {
                 // Removes item if trying to insert the same number as currently in a position
-                this.grid[row][col] = 0;
+                grid[row][col] = 0;
                 return true;
             } else {
                 if(!this.rowHasVal(val, row)){
                     if(!this.colHasVal(val, col)){
                         if(!this.squareHasVal(val, row, col)){
                             // console.log('Inserted', val, 'at (',col,',',row,')');
-                            this.grid[row][col] = val;
+                            grid[row][col] = val;
                             return true;
                         }
                     }
                 }
             }
             return false;
+        },
+        clearGrid(){
+            this.grid=[];
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid=[];
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            this.initialGrid.push([0, 0, 0, 0, 0, 0, 0, 0, 0]);
         }
     },
     computed:{
-        // currentSquare(){
-        //     let row = [];
-        //     row.push(this.grid.slice)
-        //     return row;
-        // },
         squareStartRow(){
             return Math.floor(this.currentRow/3)*3;
         },

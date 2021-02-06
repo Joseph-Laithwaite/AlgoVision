@@ -90,6 +90,7 @@ export default {
             algoComplete:false,
             gridReady:false,
             algorithm:'solve',
+            numberOfRemainingBacktracks: 5,
         }
     },
     methods:{
@@ -104,7 +105,20 @@ export default {
             let pass;
             switch(this.algorithm){
                 case 'generate': 
-                    pass = await this.solveSuduko(this.grid);
+                    if(!this.inProgress){
+                        //Algo first started
+                        this.inProgress=true;
+                        // this.currentRow=0;
+                        await this.clearGrid();
+                        pass = await this.fillGrid(this.grid);
+                        if(pass){
+                            this.initialGrid = this.grid;
+                        }
+                    }
+                    else if (this.numberOfRemainingBacktracks>0){
+                        console.log('numberOfRemainingBacktracks',this.numberOfRemainingBacktracks);
+                        this.removeNumber();
+                    } 
                 break;
                 case 'solve': 
                     if(!this.inProgress){
