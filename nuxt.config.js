@@ -2,6 +2,11 @@ export default {
   // Target (https://go.nuxtjs.dev/config-target)
   target: 'static',
 
+  // router: {
+  //   // https://github.com/Joseph-Laithwaite
+  //   base: '/AlgoVision/'
+  // },
+
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'algovision',
