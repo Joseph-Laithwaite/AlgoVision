@@ -1,0 +1,1 @@
+__NUXT_JSONP__("/InteractiveGraph", {data:[{}],fetch:[],mutations:void 0});

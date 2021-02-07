@@ -1,0 +1,1 @@
+__NUXT_JSONP__("/Fibonacci", {data:[{}],fetch:[],mutations:void 0});

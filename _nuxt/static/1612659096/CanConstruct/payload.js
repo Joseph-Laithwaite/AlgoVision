@@ -1,0 +1,1 @@
+__NUXT_JSONP__("/CanConstruct", {data:[{}],fetch:[],mutations:void 0});
