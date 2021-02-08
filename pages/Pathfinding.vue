@@ -86,7 +86,7 @@ import DepthFirstSearch from '../mixins/DepthFirstSearch.js';
 
 
 export default {
-    name:'PathFindingVisualiser',
+    name:'Pathfinding',
     mixins:[DelayMixin, DijkstraAlgorithm, AStarAlgorithm, DepthFirstSearch],
     data(){
         return{

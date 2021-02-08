@@ -77,7 +77,7 @@ import DelayMixin from '../mixins/DelayMixin.js';
 import SudukoBacktrackingAlgorithm from '../mixins/SudukoBacktrackingAlgorithm.js';
 
 export default {
-    name:'SudukoBackTracker',
+    name:'Suduko',
     mixins:[DelayMixin,SudukoBacktrackingAlgorithm],
     data(){
         return{

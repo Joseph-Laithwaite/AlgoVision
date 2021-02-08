@@ -1,6 +1,10 @@
 <template>
 <!-- class="my-canvas-wrapper" -->
 <div class="container">
+    <button @click="clearTheCanvas">Clear</button>
+    <button @click="draw">Re Draw</button>
+    <button @click="nodes = new Array()">Delete Nodes</button>
+    <button @click="edges = new Array()">Delete Edges</button>
     <canvas ref="my-canvas" 
         @mousedown="manageMouseDown" 
         @mouseup="manageMouseUp"
@@ -63,20 +67,10 @@ export default {
         },
         deleteEdge(x,y){
             let newEdges = this.edges.filter(edge => {
-                let gradient = Math.abs(edge.from.x - edge.to.x) / Math.abs(edge.from.y - edge.to.y);
-                let yIntercept = edge.from.y - gradient * edge.from.x;
-                // console.log({edge});
-                let calculatedGradient = Math.abs(edge.from.x - x) / Math.abs(edge.from.y - y);
-                // console.log({
-                //     gradient,
-                //     yIntercept, 
-                //     // calculatedY: yIntercept + gradient*edge.from.x, 
-                //     // calculatedX: (edge.from.y-yIntercept)/gradient,
-                //     x,
-                //     y,
-                //     calculatedGradient
-                // });
-                if(calculatedGradient > gradient*1.1 || calculatedGradient < gradient*0.9){
+                let calcIntercept = edge.from.y - edge.gradient * edge.from.x;
+                let calcGradient = Math.abs(edge.from.x - x) / Math.abs(edge.from.y - y);
+                if((calcGradient > edge.gradient * 1.1 || calcGradient < edge.gradient * 0.9) 
+                    && ( calcIntercept > edge.yIntercept * 1.1 || calcIntercept > edge.yIntercept * 0.9 )){
                     // console.log("Calculated gradient is outside error")
                     return true;
                 }
@@ -85,6 +79,7 @@ export default {
             if(!this.selectedNode) this.selectedNode = {x:0,y:0};
         },
         manageMouseDown(e){
+            if(this.editable === false) return;
             let target = this.withinNode(e.layerX, e.layerY);
             if(e.ctrlKey||e.altKey||e.shiftKey){
                 if(target){
@@ -99,35 +94,25 @@ export default {
                 this.selectedNode.selected = false;
             }
             if (target) {
-                if (this.selectedNode && this.selectedNode !== target) {
-                    if(!this.edgeExists(this.selectedNode, target)){
-                        this.edges.push({ from: this.selectedNode, to: target });
-                    }
-                }
-                this.selectedNode = target;
-                this.selectedNode.selected = true;
-                this.draw();
+                this.addEdge(this.selectedNode, target);
             }
         },
         manageMouseUp(e){
+            if(this.editable === false) return;
             if(e.ctrlKey||e.altKey||e.shiftKey){
-                if(!this.selectedNode){
+                if(this.selectedNode){
+                    let curNode = this.selectedNode;
+                    this.addNode(e);
+                    let newNode = this.selectedNode;
+                    this.addEdge(curNode,newNode);
+                    return;
+                }else{
                     this.deleteNode(this.selectedNode);
                     return;
                 }
             }
             if (!this.selectedNode) {
-                let node = {
-                    x: e.layerX,
-                    y: e.layerY,
-                    radius: 10,
-                    fillStyle: '#22cccc',
-                    strokeStyle: '#009999',
-                    selectedFill: '#88aaaa',
-                    selected: false
-                };
-                this.nodes.push(node);
-                this.draw();
+                this.addNode(e);
             }
             if (this.selectedNode && !this.selectedNode.selected) {
                 this.selectedNode = undefined;
@@ -135,6 +120,7 @@ export default {
             this.draw();
         },
         manageMouseMove(e){
+            if(this.editable === false) return;
             if (this.selectedNode && e.buttons) {
                 this.selectedNode.x = e.layerX;
                 this.selectedNode.y = e.layerY;
@@ -147,13 +133,16 @@ export default {
         },
         addNode(e){
             // console.log('addNode',{e});
+            if(this.selectedNode) this.selectedNode.selected = false;
             let node = {
-                x: e.layerX,
-                y: e.layerY,
-                radius: 10,
-                fillStyle: '#22cccc',
-                strokeStyle: '#009999'
-            };
+                    x: e.layerX,
+                    y: e.layerY,
+                    radius: 10,
+                    fillStyle: '#22cccc',
+                    strokeStyle: '#009999',
+                    selectedFill: '#88aaaa',
+                    selected: true
+                };
             this.nodes.push(node);
             this.selectedNode = node;
             this.draw();
@@ -166,6 +155,18 @@ export default {
                     return true;
                 }
             });
+        },
+        addEdge(fromNode,toNode){
+            if (fromNode && toNode && fromNode !== toNode) {
+                if(!this.edgeExists(fromNode, toNode)){
+                    let gradient = Math.abs(fromNode.x - toNode.x) / Math.abs(fromNode.y - toNode.y);
+                    let yIntercept = fromNode.y - gradient * fromNode.x;
+                    this.edges.push({ from: fromNode, to: toNode, gradient, yIntercept });
+                }
+            }
+            this.selectedNode = toNode;
+            this.selectedNode.selected = true;
+            this.draw();
         },
         edgeExists(from, to) {
             return (this.edges.find( edge =>{

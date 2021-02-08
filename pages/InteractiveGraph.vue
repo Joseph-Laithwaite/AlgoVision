@@ -1,6 +1,6 @@
 <template>
   <div id="drawingArea">
-      <my-interactive-graph></my-interactive-graph>
+      <my-interactive-graph :editable="editableGraph"></my-interactive-graph>
     <!-- <my-canvas 
         style="width: 100%; height: 600px;" 
         @canvasClicked="manageCanvasClick" 
@@ -39,6 +39,7 @@ export default {
 
   data () {
     return {
+      editableGraph:true,
     //   nodes: [],
     //   selectedNode:undefined,
     //   clearCanvas:false,

@@ -1,5 +1,25 @@
 <template>
-  <div>
+<split-screen>
+  <div slot="header">
+    <div class="row justify-content-center ">
+      <button @click="stepAlgorithm" type="button" class="btn btn-primary col-3">
+        Step Forward
+      </button>
+      <button @click="stepBackAlgorithm" type="button" class="btn btn-primary col-3">
+        Step Back
+      </button>
+      <button @click="runAlgorithm" type="button" class="btn btn-primary col-3">
+          Run
+      </button>
+      <button @click="pauseAlgorithm" type="button" class="btn btn-primary col-3">
+          Pause
+      </button>
+      <button @click="resetAlgorithm" type="button" class="btn btn-primary col-3">
+          Reset
+      </button>
+    </div>
+  </div>
+  <div slot="left">
     <h3 class="subtitle">
       Longest Increasing Substring
     </h3>
@@ -32,105 +52,87 @@
         </tr>
       </tbody>
     </table>
-    
     <br>
-      <div class="row justify-content-center ">
-        <label for="searchString">Search String</label>
-        <input id="searchString" type="text" v-model="searchString" />
-      </div>
-      <br>
-      <div class="row justify-content-center ">
-        <button @click="stepAlgorithm" type="button" class="btn btn-primary col-3">
-          Step Forward
-        </button>
-        <button @click="stepBackAlgorithm" type="button" class="btn btn-primary col-3">
-          Step Back
-        </button>
-        <button @click="runAlgorithm" type="button" class="btn btn-primary col-3">
-            Run
-        </button>
-        <button @click="pauseAlgorithm" type="button" class="btn btn-primary col-3">
-            Pause
-        </button>
-        <button @click="resetAlgorithm" type="button" class="btn btn-primary col-3">
-            Reset
-        </button>
-      </div>
-      <br>
-    <div class="container">
-      <div class="row">
-        <div class="col-3">
-          <h4>Variables Values</h4>
-          <table class="table">
-            <thead>
-              <th scope="col">Variable</th>
-              <th scope="col">Value</th>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Min length</td>
-                <td>{{min}}</td>
-              </tr>
-              <tr>
-                <td>Left Pointer</td>
-                <td>{{leftPointer}}</td>
-              </tr>
-              <tr>
-                <td>Right Pointer</td>
-                <td>{{rightPointer}}</td>
-              </tr>
-              <tr>
-                <td>Current Substring</td>
-                <td>{{currentString}}</td>
-              </tr>
-              <tr>
-                <td>Current Substring Valid</td>
-                <td>{{currentStringValid}}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="col-3">
-          <h4>Search str Frequencies</h4>
-          <table class="table">
-            <thead>
-              <th scope="col">Element</th>
-              <th scope="col">Required Frequency</th>
-              <th scope="col">Current Frequency</th>
-            </thead>
-            <tbody>
-              <tr v-for="(value,key) in searchStrFreqencies" :key="'elem'+key">
-                <td>{{key}}</td>
-                <td>{{value.requiredFreq}}</td>
-                <td>{{value.currFreq}}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- <div class="col">
-          <h4>Pseudo Code</h4>
-          <br>
-          <code>
-            strArray={{strArray}}<br>
-            leftPointer=0<br>
-            rightPointer=1<br>
-            longestString=[]<br>
-            minStringLength=0<br><br>
-            for leftPointer = 1 to listLength<br>
-            &nbsp;  for rightPointer = 0 to leftPointer-1<br>
-            &nbsp;&nbsp;&nbsp;  if strArray[rightPointer] > strArray[leftPointer]<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  if longestString[rightPointer]+1 > longestString[leftPointer]<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  longestString[rightPointer] = longestString[leftPointer]+1<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  minStringLength = Min(minStringLength, longestString[rightPointer])<br>
-          </code>
-        </div> -->
-      </div>
+    <div class="row justify-content-center ">
+      <label for="searchString">Search String</label>
+      <input id="searchString" type="text" v-model="searchString" />
     </div>
-  </div> 
+    <br>
+  </div>
+  <div slot="right">
+    <div class="row">
+        <h4>Variables Values</h4>
+        <table class="table">
+          <thead>
+            <th scope="col">Variable</th>
+            <th scope="col">Value</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Min length</td>
+              <td>{{min}}</td>
+            </tr>
+            <tr>
+              <td>Left Pointer</td>
+              <td>{{leftPointer}}</td>
+            </tr>
+            <tr>
+              <td>Right Pointer</td>
+              <td>{{rightPointer}}</td>
+            </tr>
+            <tr>
+              <td>Current Substring</td>
+              <td>{{currentString}}</td>
+            </tr>
+            <tr>
+              <td>Current Substring Valid</td>
+              <td>{{currentStringValid}}</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+    <div class="row">
+      <h4>Search str Frequencies</h4>
+      <table class="table">
+        <thead>
+          <th scope="col">Element</th>
+          <th scope="col">Required Frequency</th>
+          <th scope="col">Current Frequency</th>
+        </thead>
+        <tbody>
+          <tr v-for="(value,key) in searchStrFreqencies" :key="'elem'+key">
+            <td>{{key}}</td>
+            <td>{{value.requiredFreq}}</td>
+            <td>{{value.currFreq}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="row">
+      <h4>Pseudo Code</h4>
+      <br>
+      <code>
+        strArray={{strArray}}<br>
+        leftPointer=0<br>
+        rightPointer=1<br>
+        longestString=[]<br>
+        minStringLength=0<br><br>
+        for leftPointer = 1 to listLength<br>
+        &nbsp;  for rightPointer = 0 to leftPointer-1<br>
+        &nbsp;&nbsp;&nbsp;  if strArray[rightPointer] > strArray[leftPointer]<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  if longestString[rightPointer]+1 > longestString[leftPointer]<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  longestString[rightPointer] = longestString[leftPointer]+1<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  minStringLength = Min(minStringLength, longestString[rightPointer])<br>
+      </code>
+    </div>
+  </div>
+</split-screen>
 </template>
 
 <script>
+import SplitScreen from '../layout/SplitScreen.vue'
 export default {
+  components: {SplitScreen},
   props: {
     passedStr:{ 
       type: String,

@@ -39,11 +39,16 @@ export default {
   data() {
     return {
       menu: [
-        { name: "ShiftLinkedList", label: "Shift Linked List" },
-        { name: "LongestSubstring", label: "Longest Substring" },
-        { name: "Fibonacci", label: "Fibonacci Sequence" },
-        { name: "GridTraveler", label: "Grid Traveler" },
-        { name: "RiverSizes", label: "River Sizes"},
+        { name: "Pathfinding", label: "Path Finding" },
+        { name: "Suduko", label: "Suduko" },
+        { name: "", label: "Dynamic Programming", children: [
+          { name: "ShiftLinkedList", label: "Shift Linked List" },
+          { name: "LongestSubstring", label: "Longest Substring" },
+          { name: "LongestSubsequence", label: "Longest Subsequence" },
+          { name: "Fibonacci", label: "Fibonacci Sequence" },
+          { name: "GridTraveler", label: "Grid Traveler" },
+          { name: "RiverSizes", label: "River Sizes"},
+        ]},
         { name: "", label: "Sum", children: [
           { name: "CanSum", label: "Can Sum" },
           { name: "HowSum", label: "How Sum" },
